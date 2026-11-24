@@ -13,15 +13,19 @@ logging.basicConfig(
 )
 logger = logging.getLogger("cidan")
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    logger.info("Initializing CIDAN Compliance Assistant Backend...")
-    # Seed sample fixtures if DB empty
+import asyncio
+
+async def _bg_seed():
+    await asyncio.sleep(1)
     try:
         seed_database_if_empty()
     except Exception as e:
         logger.warning(f"Notice during startup seeding: {e}")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
     logger.info("CIDAN Backend successfully started and ready for requests.")
+    asyncio.create_task(_bg_seed())
     yield
     logger.info("CIDAN Backend shutting down...")
 

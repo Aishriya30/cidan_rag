@@ -1,7 +1,12 @@
 import logging
+import gc
 from typing import List
+import torch
 from sentence_transformers import SentenceTransformer
 from app.config import settings
+
+# Restrict PyTorch to 1 CPU thread to minimize memory on 512MB hosts
+torch.set_num_threads(1)
 
 logger = logging.getLogger(__name__)
 
@@ -17,8 +22,9 @@ class EmbeddingService:
 
     def __init__(self):
         try:
-            logger.info(f"Initializing SentenceTransformer with model: {settings.EMBEDDING_MODEL_NAME}")
-            self._model = SentenceTransformer(settings.EMBEDDING_MODEL_NAME)
+            logger.info(f"Initializing SentenceTransformer on CPU: {settings.EMBEDDING_MODEL_NAME}")
+            self._model = SentenceTransformer(settings.EMBEDDING_MODEL_NAME, device="cpu")
+            self._model.eval()
             logger.info("SentenceTransformer model successfully initialized.")
         except Exception as e:
             logger.error(f"Error loading SentenceTransformer: {e}")
@@ -27,8 +33,18 @@ class EmbeddingService:
     def embed_texts(self, texts: List[str]) -> List[List[float]]:
         if not texts:
             return []
-        embeddings = self._model.encode(texts, convert_to_numpy=True, normalize_embeddings=True)
-        return embeddings.tolist()
+        with torch.inference_mode():
+            # batch_size=4 keeps tensor memory under 15MB
+            embeddings = self._model.encode(
+                texts,
+                batch_size=4,
+                convert_to_numpy=True,
+                normalize_embeddings=True,
+                show_progress_bar=False
+            )
+        result = embeddings.tolist()
+        gc.collect()
+        return result
 
     def embed_query(self, query: str) -> List[float]:
         return self.embed_texts([query])[0]
