@@ -9,8 +9,15 @@ import {
 
 const API_BASE = (import.meta.env.VITE_API_BASE_URL || '/api').replace(/\/+$/, '');
 
+const DEFAULT_HEADERS: Record<string, string> = {
+  'Bypass-Tunnel-Reminder': 'true',
+  'ngrok-skip-browser-warning': 'true',
+};
+
 export async function fetchHealth(): Promise<HealthResponse> {
-  const resp = await fetch(`${API_BASE}/health`);
+  const resp = await fetch(`${API_BASE}/health`, {
+    headers: { ...DEFAULT_HEADERS },
+  });
   if (!resp.ok) {
     throw new Error(`Health check failed with status: ${resp.status}`);
   }
@@ -18,7 +25,9 @@ export async function fetchHealth(): Promise<HealthResponse> {
 }
 
 export async function fetchDocuments(): Promise<DocumentItem[]> {
-  const resp = await fetch(`${API_BASE}/documents`);
+  const resp = await fetch(`${API_BASE}/documents`, {
+    headers: { ...DEFAULT_HEADERS },
+  });
   if (!resp.ok) {
     throw new Error(`Failed to fetch documents: ${resp.statusText}`);
   }
@@ -35,6 +44,7 @@ export async function uploadDocument(
 
   const resp = await fetch(`${API_BASE}/documents/upload`, {
     method: 'POST',
+    headers: { ...DEFAULT_HEADERS },
     body: formData,
   });
 
@@ -49,6 +59,7 @@ export async function uploadDocument(
 export async function deleteDocument(docId: string): Promise<{ success: boolean; message: string }> {
   const resp = await fetch(`${API_BASE}/documents/${docId}`, {
     method: 'DELETE',
+    headers: { ...DEFAULT_HEADERS },
   });
 
   if (!resp.ok) {
@@ -67,6 +78,7 @@ export async function sendChatMessage(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...DEFAULT_HEADERS,
     },
     body: JSON.stringify({
       message,
@@ -85,7 +97,9 @@ export async function sendChatMessage(
 
 export async function fetchSuggestions(): Promise<string[]> {
   try {
-    const resp = await fetch(`${API_BASE}/chat/suggestions`);
+    const resp = await fetch(`${API_BASE}/chat/suggestions`, {
+      headers: { ...DEFAULT_HEADERS },
+    });
     if (resp.ok) {
       return resp.json();
     }
@@ -101,7 +115,9 @@ export async function fetchSuggestions(): Promise<string[]> {
 }
 
 export async function fetchObligations(): Promise<ObligationItem[]> {
-  const resp = await fetch(`${API_BASE}/compliance/obligations`);
+  const resp = await fetch(`${API_BASE}/compliance/obligations`, {
+    headers: { ...DEFAULT_HEADERS },
+  });
   if (!resp.ok) {
     throw new Error('Failed to fetch regulatory obligations');
   }
@@ -109,7 +125,9 @@ export async function fetchObligations(): Promise<ObligationItem[]> {
 }
 
 export async function fetchPolicyMappings(): Promise<PolicyMappingItem[]> {
-  const resp = await fetch(`${API_BASE}/compliance/policy-mappings`);
+  const resp = await fetch(`${API_BASE}/compliance/policy-mappings`, {
+    headers: { ...DEFAULT_HEADERS },
+  });
   if (!resp.ok) {
     throw new Error('Failed to fetch policy mappings');
   }
@@ -117,7 +135,9 @@ export async function fetchPolicyMappings(): Promise<PolicyMappingItem[]> {
 }
 
 export async function fetchRuleDrafts(): Promise<RuleProposalDraft[]> {
-  const resp = await fetch(`${API_BASE}/compliance/rule-drafts`);
+  const resp = await fetch(`${API_BASE}/compliance/rule-drafts`, {
+    headers: { ...DEFAULT_HEADERS },
+  });
   if (!resp.ok) {
     throw new Error('Failed to fetch rule drafts');
   }
@@ -133,6 +153,7 @@ export async function submitRuleDraftAction(
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      ...DEFAULT_HEADERS,
     },
     body: JSON.stringify({
       action,
