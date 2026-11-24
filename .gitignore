@@ -1,0 +1,34 @@
+# Secrets and Local Environment
+.env
+.env.local
+*.env
+
+# Python Virtual Environments & Bytecode
+venv/
+env/
+.venv/
+__pycache__/
+*.py[cod]
+*$py.class
+*.pytest_cache/
+.coverage
+htmlcov/
+
+# ChromaDB & Vector Store Data
+backend/data/chromadb/
+backend/data/uploads/
+backend/data/documents.json
+data/
+*.chroma/
+
+# Node.js / Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS Artifacts
+.DS_Store
+Thumbs.db
