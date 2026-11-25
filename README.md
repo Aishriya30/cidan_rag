@@ -4,6 +4,15 @@ CIDAN is an enterprise banking regulatory compliance RAG (Retrieval-Augmented Ge
 
 ---
 
+## 🌐 Live Production Deployments
+
+* **Frontend Web Application (Vercel):** [https://cidan.vercel.app](https://cidan.vercel.app)
+* **Backend Cloud API (Render):** [https://cidan-rag.onrender.com](https://cidan-rag.onrender.com)
+* **Interactive API Documentation:** [https://cidan-rag.onrender.com/docs](https://cidan-rag.onrender.com/docs)
+* **Backend Telemetry & Health Check:** [https://cidan-rag.onrender.com/api/health](https://cidan-rag.onrender.com/api/health)
+
+---
+
 ## 1. System Architecture
 
 ```mermaid
