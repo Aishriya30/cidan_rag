@@ -17,6 +17,8 @@ FIXTURES_DIR.mkdir(parents=True, exist_ok=True)
 
 CIRCULAR_DOCX = FIXTURES_DIR / "SYNTHETIC_CIRCULAR_CB_2024_09.docx"
 POLICY_DOCX = FIXTURES_DIR / "SYNTHETIC_BANK_POLICY_POL_TREAS_04.docx"
+RBI_IT_DOCX = FIXTURES_DIR / "CIDAN_RBI_IT_CYBERSECURITY_FRAMEWORK.docx"
+INTERNAL_RULES_DOCX = FIXTURES_DIR / "CIDAN_BANK_INTERNAL_RULES_CATALOG.docx"
 
 def generate_synthetic_fixtures():
     """
@@ -79,6 +81,51 @@ def generate_synthetic_fixtures():
         doc.save(POLICY_DOCX)
         logger.info(f"Created synthetic fixture: {POLICY_DOCX.name}")
 
+    # 3. CIDAN RBI Master Direction on IT & Cyber Security
+    if not RBI_IT_DOCX.exists():
+        doc = docx.Document()
+        doc.add_heading("[CIDAN REGULATORY MANDATE - RBI IT & CYBER SECURITY CONTROLS]", level=1)
+        doc.add_paragraph("Reserve Bank of India Master Direction on Information Technology Governance, Risk, Security and Controls (Updated 2024).")
+
+        doc.add_heading("Section 1: Data Localization & Sovereignty", level=2)
+        doc.add_paragraph("All customer Personal Identifiable Information (PII), account ledgers, biometric hashes, and transaction trails originating within domestic borders must reside solely on domestic cloud servers. Cross-border exfiltration without prior written regulatory exemption is prohibited.")
+
+        doc.add_heading("Section 2: Cryptographic Controls & Access Governance", level=2)
+        doc.add_paragraph("All customer PII and sensitive data at rest must be encrypted using AES-256 GCM or higher. Multi-Factor Authentication (MFA) is strictly mandatory for all administrative and core banking database access sessions.")
+
+        doc.add_heading("Section 3: Audit Trail & Retention Requirements", level=2)
+        doc.add_paragraph("Banks must maintain tamper-evident, cryptographically signed audit logs for all administrative sessions and financial transactions. Logs must be archived for a minimum period of 5 years.")
+
+        doc.add_heading("Section 4: Statutory Penalties under Banking Regulation Act", level=2)
+        doc.add_paragraph("Non-compliance or failure to implement mandated security controls triggers enforcement actions under Section 46 and Section 47A(1)(c) of the Banking Regulation Act, 1949, with statutory penalties up to INR 1 Crore (INR 10 Million) per default plus recurring fines of INR 100,000 per day of persisting failure.")
+
+        doc.save(RBI_IT_DOCX)
+        logger.info(f"Created CIDAN fixture: {RBI_IT_DOCX.name}")
+
+    # 4. CIDAN Bank Internal Rules Catalog
+    if not INTERNAL_RULES_DOCX.exists():
+        doc = docx.Document()
+        doc.add_heading("[CIDAN BANK INTERNAL COMPLIANCE RULES CATALOG]", level=1)
+        doc.add_paragraph("Active enterprise banking compliance rules deployed across MongoDB Atlas, PostgreSQL, and Core Banking Gateways.")
+
+        doc.add_heading("RULE-DATA-001: Cross-Border Customer PII Data Sovereignty & GDPR Shield", level=2)
+        doc.add_paragraph("Mandatory requirement: All customer PII and transaction records originating from domestic jurisdictions must remain encrypted at rest using AES-256 and cannot be transferred across foreign borders without formal supervisory clearance. Deployed on MongoDB Atlas collection cidan_bank.compliance_rules.")
+
+        doc.add_heading("RULE-AML-001: Currency Transaction Reporting (CTR) Threshold", level=2)
+        doc.add_paragraph("Any single cash transaction or aggregated transactions exceeding INR 1,000,000 ($10,000) within 24 hours must trigger an automatic CTR filing within 7 banking days.")
+
+        doc.add_heading("RULE-KYC-002: Customer Identification & Beneficial Ownership", level=2)
+        doc.add_paragraph("Mandatory identity verification prior to onboarding. Beneficial owners holding 25% or greater equity must be screened against PEP and international watchlists with re-KYC every 24 months.")
+
+        doc.add_heading("RULE-SANCTION-003: Real-Time Wire Sanctions Screening", level=2)
+        doc.add_paragraph("All inbound and outbound wire messages (SWIFT MT/MX, ISO 20022) must undergo real-time screening against UN, OFAC, and local FIU negative lists prior to final ledger settlement.")
+
+        doc.add_heading("RULE-LEND-004: Commercial Real Estate LTV Ceiling", level=2)
+        doc.add_paragraph("Commercial real estate loans must adhere to a statutory 75% LTV ceiling. Any portfolio deviation requires unanimous Board Risk Committee approval.")
+
+        doc.save(INTERNAL_RULES_DOCX)
+        logger.info(f"Created CIDAN fixture: {INTERNAL_RULES_DOCX.name}")
+
 def ensure_seed_fixtures_present() -> bool:
     """Returns True when the required synthetic fixtures are present in the live collection."""
     if vector_store.get_count() == 0:
@@ -97,7 +144,7 @@ def ensure_seed_fixtures_present() -> bool:
             if filename:
                 filenames.add(filename)
 
-    needed = {CIRCULAR_DOCX.name, POLICY_DOCX.name}
+    needed = {CIRCULAR_DOCX.name, POLICY_DOCX.name, RBI_IT_DOCX.name, INTERNAL_RULES_DOCX.name}
     return needed.issubset(filenames)
 
 
@@ -126,7 +173,9 @@ def seed_database_if_empty():
 
     fixtures_to_index = [
         (CIRCULAR_DOCX, "Regulatory Circular", "SYNTHETIC_CIRCULAR_CB_2024_09.docx"),
-        (POLICY_DOCX, "Internal Bank Policy", "SYNTHETIC_BANK_POLICY_POL_TREAS_04.docx")
+        (POLICY_DOCX, "Internal Bank Policy", "SYNTHETIC_BANK_POLICY_POL_TREAS_04.docx"),
+        (RBI_IT_DOCX, "Regulatory Circular", "CIDAN_RBI_IT_CYBERSECURITY_FRAMEWORK.docx"),
+        (INTERNAL_RULES_DOCX, "Internal Bank Policy", "CIDAN_BANK_INTERNAL_RULES_CATALOG.docx")
     ]
 
     for file_path, doc_type, filename in fixtures_to_index:
